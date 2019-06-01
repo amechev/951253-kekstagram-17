@@ -1,7 +1,7 @@
 # Личный проект «Кекстаграм» [![Build status][travis-image]][travis-url]
 
 * Студент: [Александр Мечев](https://up.htmlacademy.ru/javascript/17/user/951253).
-* Наставник: `Неизвестно`.
+* Наставник: [Дмитрий Самойлис](https://htmlacademy.ru/profile/samo1et).
 
 ---
 
