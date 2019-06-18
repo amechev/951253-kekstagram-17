@@ -5,6 +5,7 @@ var ENTER_KEYCODE = 13;
 var MIN_SCALE_PARAM = 25;
 var MAX_SCALE_PARAM = 100;
 var SCALE_STEP = 25;
+var DESCRIPTION_MAX_LENGTH = 150;
 var FILTER_EFFECTS = {
   none: '',
   chrome: 'effects__preview--chrome',
@@ -70,6 +71,9 @@ var levelPinCoords = null;
 var levelLineCoords = null;
 var startPosition = null;
 
+var elementImageForm = document.querySelector('#upload-select-image');
+var elementFormDescription = document.querySelector('.text__description');
+
 var openPopup = function () {
   elementDialogWrap.classList.remove('hidden');
   document.addEventListener('keydown', onPopupEscPress);
@@ -126,7 +130,7 @@ var clearForm = function () {
 };
 
 var onPopupEscPress = function (evt) {
-  if (evt.keyCode === ESC_KEYCODE) {
+  if (evt.keyCode === ESC_KEYCODE && evt.target !== elementFormDescription) {
     closePopup();
   }
 };
@@ -258,3 +262,31 @@ var getElemCoords = function (elem) {
 var getPercentsByCoords = function (total, current) {
   return Math.round(100 / total * current);
 };
+
+var validateFormData = function (formData) {
+  if (formData.get('description').length > DESCRIPTION_MAX_LENGTH) {
+    elementFormDescription.style.boxShadow = '0 0 0 3px tomato';
+
+    elementFormDescription.addEventListener('keydown', onDescriptionChange);
+    return false;
+  }
+
+  return true;
+};
+
+var onDescriptionChange = function () {
+  elementFormDescription.style = '';
+  elementFormDescription.removeEventListener('keydown', onDescriptionChange);
+};
+
+var onSubmitForm = function (evt) {
+  var formData = new FormData(evt.target);
+  var isFormFalid = validateFormData(formData);
+
+  if (!isFormFalid) {
+    evt.preventDefault();
+  }
+};
+
+elementImageForm.addEventListener('submit', onSubmitForm);
+elementFormDescription.addEventListener('change', onDescriptionChange);
