@@ -213,6 +213,7 @@ elementInputFile.addEventListener('change', function () {
 });
 
 var onMouseDownSlider = function (evt) {
+  evt.preventDefault();
   levelPinCoords = getElemCoords(elementLevelPin);
   levelLineCoords = getElemCoords(elementLevelLine);
   startPosition = evt.pageX - levelPinCoords.left;
@@ -227,8 +228,10 @@ var onMouseupSlider = function () {
   document.removeEventListener('mouseup', onMouseupSlider);
 };
 
-var onMouseMoveSlider = function (evt) {
-  var newPosition = evt.pageX - startPosition - levelLineCoords.left;
+var onMouseMoveSlider = function (moveEvt) {
+  moveEvt.preventDefault();
+
+  var newPosition = moveEvt.pageX - startPosition - levelLineCoords.left;
 
   if (newPosition < 0) {
     newPosition = 0;
@@ -244,11 +247,6 @@ var onMouseMoveSlider = function (evt) {
 };
 
 elementLevelPin.addEventListener('mousedown', onMouseDownSlider);
-
-// Блокирует нативный браузерный dragDrop
-elementLevelPin.addEventListener('dragstart', function () {
-  return false;
-});
 
 var getElemCoords = function (elem) {
   var box = elem.getBoundingClientRect();
