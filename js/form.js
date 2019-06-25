@@ -107,10 +107,6 @@
     }
   };
 
-  var clearForm = function () {
-    elementInputFile.value = '';
-  };
-
   elementFormDescription.addEventListener('focus', function () {
     util.isEscEventDisabled = true;
   });
@@ -179,7 +175,6 @@
 
   elementInputFile.addEventListener('change', function () {
     resetFilters();
-    clearForm();
     dialog.openPopup();
   });
 
