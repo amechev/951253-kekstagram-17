@@ -2,7 +2,9 @@
 
 (function () {
   var util = window.util;
-  var dialog = window.dialog;
+  var elementDialogWrap = document.querySelector('.img-upload__overlay');
+  var elementPopupClose = document.getElementById('upload-cancel');
+  var dialog = new window.Dialog(elementDialogWrap, elementPopupClose);
   var MIN_SCALE_PARAM = 25;
   var MAX_SCALE_PARAM = 100;
   var SCALE_STEP = 25;
