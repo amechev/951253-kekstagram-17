@@ -16,7 +16,12 @@ window.Dialog = function (elementDialogWrap, elementPopupClose) {
   this.closePopup = function () {
     elementDialogWrap.classList.add('hidden');
     document.removeEventListener('keydown', function (evt) {
-      util.isEscEvent(evt, that.closePopup);
+      if (!util.isEscEventDisabled) {
+        util.isEscEvent(evt, that.closePopup);
+      }
+    });
+    elementPopupClose.removeEventListener('keydown', function (evt) {
+      util.isEnterEvent(evt, that.closePopup);
     });
   };
 
