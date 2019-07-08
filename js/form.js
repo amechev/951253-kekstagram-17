@@ -5,6 +5,7 @@
   var elementDialogWrap = document.querySelector('.img-upload__overlay');
   var elementPopupClose = document.getElementById('upload-cancel');
   var dialog = new window.Dialog(elementDialogWrap, elementPopupClose);
+  var SAVE_URL = 'https://js.dump.academy/kekstagram';
   var MIN_SCALE_PARAM = 25;
   var MAX_SCALE_PARAM = 100;
   var SCALE_STEP = 25;
@@ -12,6 +13,7 @@
   var MAX_HASHTAGS_LENGTH = 5;
   var MAX_HASHTAG_SIZE = 20;
   var MIN_HASHTAG_SIZE = 2;
+  var FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
   var FILTER_EFFECTS = {
     none: '',
     chrome: 'effects__preview--chrome',
@@ -83,7 +85,14 @@
     }
   };
 
+  var resetForm = function () {
+    elementInputFile.value = null;
+    elementFormHashTags.value = '';
+    elementFormDescription.value = '';
+  };
+
   var resetFilters = function () {
+    elementsRadioFilters[0].checked = true;
     selectedFilter = null;
     elementImgPreview.className = '';
     currentScaleValue = DEFAULT_FILTER_VALUE;
@@ -185,9 +194,20 @@
     onFilterChange(elementsRadioFilters[i]);
   }
 
-  elementInputFile.addEventListener('change', function () {
+  elementInputFile.addEventListener('change', function (evt) {
+    var fileName = evt.target.value.toLowerCase();
+
+    var fileFormatMatches = FILE_TYPES.some(function (it) {
+      return fileName.endsWith(it);
+    });
+
+    if (!fileFormatMatches) {
+      return false;
+    }
+
     resetFilters();
     dialog.openPopup();
+    return true;
   });
 
   var onMouseDownSlider = function (evt) {
@@ -241,6 +261,7 @@
 
   var validateFormData = function (formData) {
     var hashArray = formData.get('hashtags').toLowerCase().split(' ');
+
     if (formData.get('description').length > DESCRIPTION_MAX_LENGTH) {
       elementFormDescription.style.boxShadow = '0 0 0 3px tomato';
       elementFormDescription.addEventListener('keydown', onDescriptionChange);
@@ -252,22 +273,25 @@
       return false;
     }
 
-    var hashArrayUnique = [];
-    var hashIsValid = !hashArray.some(function (item) {
-      if (item.length > MAX_HASHTAG_SIZE || item.length < MIN_HASHTAG_SIZE || item.charAt(0) !== '#') {
-        onHashtagsError();
-        return item;
-      }
+    var hashIsValid = true;
+    if (hashArray[0].length) {
+      var hashArrayUnique = [];
+      hashIsValid = !hashArray.some(function (item) {
+        if (item.length > MAX_HASHTAG_SIZE || item.length < MIN_HASHTAG_SIZE || item.charAt(0) !== '#') {
+          onHashtagsError();
+          return item;
+        }
 
-      if (hashArrayUnique.indexOf(item) >= 0) {
-        onHashtagsError();
-        return item;
-      } else {
-        hashArrayUnique.push(item);
-      }
+        if (hashArrayUnique.indexOf(item) >= 0) {
+          onHashtagsError();
+          return item;
+        } else {
+          hashArrayUnique.push(item);
+        }
 
-      return false;
-    });
+        return false;
+      });
+    }
 
     return hashIsValid;
   };
@@ -287,6 +311,16 @@
     elementFormHashTags.removeEventListener('keydown', onHashtagsChange);
   };
 
+  var onSuccessSave = function () {
+    resetForm();
+    dialog.closePopup();
+    renderSuccessModal();
+  };
+
+  var onErrorSave = function () {
+    renderErrorModal();
+  };
+
   var onSubmitForm = function (evt) {
     var formData = new FormData(evt.target);
     var isFormFalid = validateFormData(formData);
@@ -294,7 +328,76 @@
     if (!isFormFalid) {
       evt.preventDefault();
     }
+
+    window.backend.save(SAVE_URL, formData, onSuccessSave, onErrorSave);
+    evt.preventDefault();
   };
+
+
+  var renderSuccessModal = function () {
+    var fragment = document.createDocumentFragment();
+    fragment.appendChild(new window.RenderSuccess());
+    document.querySelector('main').appendChild(fragment);
+    initSuccessModal();
+  };
+
+  var initSuccessModal = function () {
+    var modal = document.querySelector('.success');
+    var closeButton = modal.querySelector('.success__button');
+    closeButton.addEventListener('click', function () {
+      closeSuccessModal();
+    });
+    closeButton.addEventListener('keydown', function (evt) {
+      util.isEnterEvent(evt, closeSuccessModal);
+    });
+    modal.addEventListener('click', function (evt) {
+      if (evt.target === modal) {
+        closeSuccessModal();
+      }
+    });
+    document.addEventListener('keydown', function (evt) {
+      util.isEscEvent(evt, closeSuccessModal);
+    });
+  };
+
+  var closeSuccessModal = function () {
+    document.querySelector('.success').remove();
+    document.removeEventListener('keydown', function (evt) {
+      util.isEscEvent(evt, closeSuccessModal);
+    });
+  };
+
+
+  var renderErrorModal = function () {
+    var fragment = document.createDocumentFragment();
+    fragment.appendChild(new window.RenderError());
+    document.querySelector('main').appendChild(fragment);
+    initErrorModal();
+  };
+
+  var initErrorModal = function () {
+    var modal = document.querySelector('.error');
+    var closeButton = modal.querySelector('.error__button');
+    closeButton.addEventListener('click', function () {
+      closeErrorModal();
+    });
+    closeButton.addEventListener('keydown', function (evt) {
+      util.isEnterEvent(evt, closeErrorModal);
+    });
+    modal.addEventListener('click', function (evt) {
+      if (evt.target === modal) {
+        closeErrorModal();
+      }
+    });
+  };
+
+  var closeErrorModal = function () {
+    document.querySelector('.error').remove();
+    document.removeEventListener('keydown', function (evt) {
+      util.isEscEvent(evt, closeErrorModal);
+    });
+  };
+
 
   elementImageForm.addEventListener('submit', onSubmitForm);
   elementFormDescription.addEventListener('change', onDescriptionChange);
