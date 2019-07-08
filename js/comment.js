@@ -1,16 +1,11 @@
 'use strict';
 
-(function () {
+window.RenderComment = function (params) {
   var commentTemplate = document.querySelector('#comment')
     .content
     .querySelector('.social__comment');
-
-  window.renderComment = function (params) {
-    var element = commentTemplate.cloneNode(true);
-    element.querySelector('.social__text').textContent = params.message;
-    element.querySelector('.social__picture').src = params.avatar;
-    commentTemplate.appendChild(element);
-    return element;
-  };
-
-})();
+  this.element = commentTemplate.cloneNode(true);
+  this.element.querySelector('.social__text').textContent = params.message;
+  this.element.querySelector('.social__picture').src = params.avatar;
+  return this.element;
+};
