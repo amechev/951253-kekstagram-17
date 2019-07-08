@@ -7,7 +7,9 @@ window.Dialog = function (elementDialogWrap, elementPopupClose) {
   this.openPopup = function () {
     elementDialogWrap.classList.remove('hidden');
     document.addEventListener('keydown', function (evt) {
-      util.isEscEvent(evt, that.closePopup);
+      if (!util.isEscEventDisabled) {
+        util.isEscEvent(evt, that.closePopup);
+      }
     });
   };
 

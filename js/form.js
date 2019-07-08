@@ -9,6 +9,9 @@
   var MAX_SCALE_PARAM = 100;
   var SCALE_STEP = 25;
   var DESCRIPTION_MAX_LENGTH = 150;
+  var MAX_HASHTAGS_LENGTH = 5;
+  var MAX_HASHTAG_SIZE = 20;
+  var MIN_HASHTAG_SIZE = 2;
   var FILTER_EFFECTS = {
     none: '',
     chrome: 'effects__preview--chrome',
@@ -69,6 +72,7 @@
   var startPosition = null;
   var elementImageForm = document.querySelector('#upload-select-image');
   var elementFormDescription = document.querySelector('.text__description');
+  var elementFormHashTags = document.querySelector('.text__hashtags');
 
   var setVisibleFilter = function (isVisible) {
     if (isVisible) {
@@ -109,12 +113,18 @@
     }
   };
 
+  elementFormDescription.addEventListener('blur', function () {
+    util.isEscEventDisabled = false;
+  });
+  elementFormHashTags.addEventListener('blur', function () {
+    util.isEscEventDisabled = false;
+  });
+
   elementFormDescription.addEventListener('focus', function () {
     util.isEscEventDisabled = true;
   });
-
-  elementFormDescription.addEventListener('blur', function () {
-    util.isEscEventDisabled = false;
+  elementFormHashTags.addEventListener('focus', function () {
+    util.isEscEventDisabled = true;
   });
 
   var onZoomOut = function () {
@@ -230,19 +240,51 @@
   };
 
   var validateFormData = function (formData) {
+    var hashArray = formData.get('hashtags').toLowerCase().split(' ');
     if (formData.get('description').length > DESCRIPTION_MAX_LENGTH) {
       elementFormDescription.style.boxShadow = '0 0 0 3px tomato';
-
       elementFormDescription.addEventListener('keydown', onDescriptionChange);
       return false;
     }
 
-    return true;
+    if (hashArray.length > MAX_HASHTAGS_LENGTH) {
+      onHashtagsError();
+      return false;
+    }
+
+    var hashArrayUnique = [];
+    var hashIsValid = !hashArray.some(function (item) {
+      if (item.length > MAX_HASHTAG_SIZE || item.length < MIN_HASHTAG_SIZE || item.charAt(0) !== '#') {
+        onHashtagsError();
+        return item;
+      }
+
+      if (hashArrayUnique.indexOf(item) >= 0) {
+        onHashtagsError();
+        return item;
+      } else {
+        hashArrayUnique.push(item);
+      }
+
+      return false;
+    });
+
+    return hashIsValid;
+  };
+
+  var onHashtagsError = function () {
+    elementFormHashTags.style.boxShadow = '0 0 0 3px tomato';
+    elementFormHashTags.addEventListener('keydown', onHashtagsChange);
   };
 
   var onDescriptionChange = function () {
     elementFormDescription.style = '';
     elementFormDescription.removeEventListener('keydown', onDescriptionChange);
+  };
+
+  var onHashtagsChange = function () {
+    elementFormHashTags.style = '';
+    elementFormHashTags.removeEventListener('keydown', onHashtagsChange);
   };
 
   var onSubmitForm = function (evt) {
