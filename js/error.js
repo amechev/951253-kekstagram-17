@@ -11,24 +11,28 @@
 
   var initErrorModal = function () {
     var modal = document.querySelector('.error');
-    var closeButton = modal.querySelector('.error__button');
-    closeButton.addEventListener('click', function () {
-      closeErrorModal();
-    });
-    closeButton.addEventListener('keydown', function (evt) {
-      util.isEnterEvent(evt, closeErrorModal);
+    var closeButton = modal.querySelectorAll('.error__button');
+    closeButton.forEach(function (button) {
+      button.addEventListener('click', onCloseErrorModal);
+      button.addEventListener('keydown', function (evt) {
+        util.isEnterEvent(evt, onCloseErrorModal);
+      });
     });
     modal.addEventListener('click', function (evt) {
       if (evt.target === modal) {
-        closeErrorModal();
+        onCloseErrorModal();
       }
+    });
+
+    document.addEventListener('keydown', function (evt) {
+      util.isEscEvent(evt, onCloseErrorModal);
     });
   };
 
-  var closeErrorModal = function () {
+  var onCloseErrorModal = function () {
     document.querySelector('.error').remove();
     document.removeEventListener('keydown', function (evt) {
-      util.isEscEvent(evt, closeErrorModal);
+      util.isEscEvent(evt, onCloseErrorModal);
     });
   };
 

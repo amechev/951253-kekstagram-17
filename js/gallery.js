@@ -23,7 +23,7 @@
   var socialCommentsCurrentCnt = bigPicture.querySelector('.comments-current-count');
   var socialCommentsLoader = bigPicture.querySelector('.comments-loader');
 
-  var successHandler = function (items) {
+  var onSuccessHandler = function (items) {
     images = items;
     items.forEach(function (item) {
       var key = item.url.replace(/[^0-9]/g, '');
@@ -35,7 +35,7 @@
     initFilters();
   };
 
-  var errorHandler = window.util.errorHandler;
+  var onErrorHandler = window.util.errorHandler;
 
   var sortImages = window.debounce(function (sortedArr) {
     renderImages(sortedArr);
@@ -116,7 +116,7 @@
     }
 
     renderComments(currentComments);
-    dialog.openPopup();
+    dialog.onOpenPopup();
     socialCommentsLoader.addEventListener('click', onCommentLoaderClick);
   };
 
@@ -147,6 +147,6 @@
     renderComments(currentComments);
   };
 
-  window.backend.load(DATA_URL, successHandler, errorHandler);
+  window.backend.load(DATA_URL, onSuccessHandler, onErrorHandler);
 
 })();

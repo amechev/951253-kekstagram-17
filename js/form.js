@@ -3,7 +3,7 @@
 (function () {
   var util = window.util;
   var elementDialogWrap = document.querySelector('.img-upload__overlay');
-  var elementPopupClose = document.getElementById('upload-cancel');
+  var elementPopupClose = document.querySelector('.img-upload__cancel');
   var dialog = new window.Dialog(elementDialogWrap, elementPopupClose);
   var SAVE_URL = 'https://js.dump.academy/kekstagram';
   var MIN_SCALE_PARAM = 25;
@@ -53,7 +53,8 @@
   };
   var DEFAULT_FILTER_VALUE = 100;
 
-  var elementInputFile = document.getElementById('upload-file');
+  var elementInputFile = document.querySelector('.img-upload__input');
+  var elementInputLabel = document.querySelector('.img-upload__label');
   var elementImgPreviewWrap = document.querySelector('.img-upload__preview');
   var elementImgPreview = elementImgPreviewWrap.children[0];
   var elementScaleSmaller = document.querySelector('.scale__control--smaller');
@@ -85,7 +86,7 @@
     }
   };
 
-  var resetForm = function () {
+  var onResetForm = function () {
     elementInputFile.value = null;
     elementFormHashTags.value = '';
     elementFormDescription.value = '';
@@ -190,9 +191,11 @@
     });
   };
 
-  for (var i = 0; i < elementsRadioFilters.length; i++) {
-    onFilterChange(elementsRadioFilters[i]);
-  }
+  elementsRadioFilters.forEach(function (item) {
+    onFilterChange(item);
+  });
+
+  elementInputLabel.addEventListener('click', onResetForm);
 
   elementInputFile.addEventListener('change', function (evt) {
     var fileName = evt.target.value.toLowerCase();
@@ -206,7 +209,7 @@
     }
 
     resetFilters();
-    dialog.openPopup();
+    dialog.onOpenPopup();
     return true;
   });
 
@@ -265,6 +268,7 @@
     if (formData.get('description').length > DESCRIPTION_MAX_LENGTH) {
       elementFormDescription.style.boxShadow = '0 0 0 3px tomato';
       elementFormDescription.addEventListener('keydown', onDescriptionChange);
+      elementFormDescription.focus();
       return false;
     }
 
@@ -299,6 +303,7 @@
   var onHashtagsError = function () {
     elementFormHashTags.style.boxShadow = '0 0 0 3px tomato';
     elementFormHashTags.addEventListener('keydown', onHashtagsChange);
+    elementFormHashTags.focus();
   };
 
   var onDescriptionChange = function () {
@@ -312,12 +317,13 @@
   };
 
   var onSuccessSave = function () {
-    resetForm();
-    dialog.closePopup();
+    onResetForm();
+    dialog.onClosePopup();
     window.renderSuccessModal();
   };
 
   var onErrorSave = function () {
+    dialog.onClosePopup();
     window.renderErrorModal();
   };
 
@@ -327,10 +333,12 @@
 
     if (!isFormFalid) {
       evt.preventDefault();
+      return false;
     }
 
     window.backend.save(SAVE_URL, formData, onSuccessSave, onErrorSave);
     evt.preventDefault();
+    return true;
   };
 
   elementImageForm.addEventListener('submit', onSubmitForm);
