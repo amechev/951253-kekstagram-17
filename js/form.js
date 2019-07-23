@@ -1,15 +1,14 @@
 'use strict';
 
 (function () {
-  var util = window.util;
-  var elementDialogWrap = document.querySelector('.img-upload__overlay');
-  var elementPopupClose = document.querySelector('.img-upload__cancel');
-  var dialog = new window.Dialog(elementDialogWrap, elementPopupClose);
   var SAVE_URL = 'https://js.dump.academy/kekstagram';
+  var ERROR_STYLE = '0 0 0 3px tomato';
   var MIN_SCALE_PARAM = 25;
   var MAX_SCALE_PARAM = 100;
   var SCALE_STEP = 25;
   var DESCRIPTION_MAX_LENGTH = 150;
+  var HASH_ERROR_TXT = 'Хэштэги должны начинаться с # и не превышать 20 символов';
+  var DESCRIPTION_ERROR_TXT = 'Описание должно быть не больше ' + DESCRIPTION_MAX_LENGTH + ' символов';
   var MAX_HASHTAGS_LENGTH = 5;
   var MAX_HASHTAG_SIZE = 20;
   var MIN_HASHTAG_SIZE = 2;
@@ -22,7 +21,6 @@
     phobos: 'effects__preview--phobos',
     heat: 'effects__preview--heat',
   };
-
   var FILTER_STYLES = {
     none: '',
     chrome: {
@@ -53,6 +51,10 @@
   };
   var DEFAULT_FILTER_VALUE = 100;
 
+  var util = window.util;
+  var elementDialogWrap = document.querySelector('.img-upload__overlay');
+  var elementPopupClose = document.querySelector('.img-upload__cancel');
+  var dialog = new window.Dialog(elementDialogWrap, elementPopupClose);
   var elementInputFile = document.querySelector('.img-upload__input');
   var elementInputLabel = document.querySelector('.img-upload__label');
   var elementImgPreviewWrap = document.querySelector('.img-upload__preview');
@@ -76,6 +78,7 @@
   var elementImageForm = document.querySelector('#upload-select-image');
   var elementFormDescription = document.querySelector('.text__description');
   var elementFormHashTags = document.querySelector('.text__hashtags');
+  var elementImagePreview = document.querySelector('.img-upload__preview-pic');
 
   var setVisibleFilter = function (isVisible) {
     if (isVisible) {
@@ -198,6 +201,7 @@
   elementInputLabel.addEventListener('click', onResetForm);
 
   elementInputFile.addEventListener('change', function (evt) {
+    var file = elementInputFile.files[0];
     var fileName = evt.target.value.toLowerCase();
 
     var fileFormatMatches = FILE_TYPES.some(function (it) {
@@ -209,9 +213,18 @@
     }
 
     resetFilters();
+    updatePreview(file);
     dialog.onOpenPopup();
     return true;
   });
+
+  var updatePreview = function (file) {
+    var reader = new FileReader();
+    reader.addEventListener('load', function () {
+      elementImagePreview.src = reader.result;
+    });
+    reader.readAsDataURL(file);
+  };
 
   var onMouseDownSlider = function (evt) {
     evt.preventDefault();
@@ -266,7 +279,8 @@
     var hashArray = formData.get('hashtags').toLowerCase().split(' ');
 
     if (formData.get('description').length > DESCRIPTION_MAX_LENGTH) {
-      elementFormDescription.style.boxShadow = '0 0 0 3px tomato';
+      elementFormDescription.style.boxShadow = ERROR_STYLE;
+      elementFormDescription.setCustomValidity(DESCRIPTION_ERROR_TXT);
       elementFormDescription.addEventListener('keydown', onDescriptionChange);
       elementFormDescription.focus();
       return false;
@@ -301,18 +315,20 @@
   };
 
   var onHashtagsError = function () {
-    elementFormHashTags.style.boxShadow = '0 0 0 3px tomato';
+    elementFormHashTags.style.boxShadow = ERROR_STYLE;
+    elementFormHashTags.setCustomValidity(HASH_ERROR_TXT);
     elementFormHashTags.addEventListener('keydown', onHashtagsChange);
-    elementFormHashTags.focus();
   };
 
   var onDescriptionChange = function () {
     elementFormDescription.style = '';
+    elementFormDescription.setCustomValidity('');
     elementFormDescription.removeEventListener('keydown', onDescriptionChange);
   };
 
   var onHashtagsChange = function () {
     elementFormHashTags.style = '';
+    elementFormHashTags.setCustomValidity('');
     elementFormHashTags.removeEventListener('keydown', onHashtagsChange);
   };
 
