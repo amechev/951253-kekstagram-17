@@ -3,13 +3,15 @@
 (function () {
   var DATA_URL = 'https://js.dump.academy/kekstagram/data';
   var MIN_COMMENTS_LENGTH = 5;
-  var currentCommentsLength = 5;
   var HIDDEN = 'visually-hidden';
+  var COMMENT_CNT = 5;
+  var NEW_IMAGES_LENGTH = 10;
 
   var picturesList = document.querySelector('.pictures');
   var filters = document.querySelector('.img-filters');
   var ImagesDict = {};
   var images = [];
+  var currentCommentsLength = COMMENT_CNT;
 
   var bigPicture = document.querySelector('.big-picture');
   var bigPictureClose = document.querySelector('.big-picture__cancel');
@@ -62,7 +64,7 @@
     };
 
     var getNewImages = function () {
-      return images.slice().sort(compareRandom).slice(0, 9);
+      return images.slice().sort(compareRandom).slice(0, NEW_IMAGES_LENGTH);
     };
 
     var getDiscussedImages = function () {
@@ -139,7 +141,7 @@
   };
 
   var onCommentLoaderClick = function () {
-    currentCommentsLength += 5;
+    currentCommentsLength += COMMENT_CNT;
     if (currentCommentsLength > currentComments.length) {
       currentCommentsLength = currentComments.length;
     }

@@ -11,8 +11,8 @@
 
   var initErrorModal = function () {
     var modal = document.querySelector('.error');
-    var closeButton = modal.querySelectorAll('.error__button');
-    closeButton.forEach(function (button) {
+    var closeButtons = modal.querySelectorAll('.error__button');
+    closeButtons.forEach(function (button) {
       button.addEventListener('click', onCloseErrorModal);
       button.addEventListener('keydown', function (evt) {
         util.isEnterEvent(evt, onCloseErrorModal);
