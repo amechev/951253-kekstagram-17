@@ -359,4 +359,5 @@
 
   elementImageForm.addEventListener('submit', onSubmitForm);
   elementFormDescription.addEventListener('change', onDescriptionChange);
+
 })();
